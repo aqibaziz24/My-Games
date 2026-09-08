@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080b18">
+<title>Gaming Suite 3D</title>
+<link rel="preconnect" href="https://fra.cloud.appwrite.io">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<!-- Appwrite SDK 14.0.1 -->
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+<!-- Tailwind CSS for Responsive Layouts -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+:root {
+  --bg: #080b18;
+  --bg2: #11182d;
+  --border: rgba(255, 255, 255, 0.14);
+  --text: #f8fafc;
+  --muted: #9aa8c7;
+  --accent: #3295ff;
+  --p2-color: #ff3eaa;
+  --shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overscroll-behavior: none;
+  touch-action: none;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: linear-gradient(135deg, var(--bg), var(--bg2));
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(65, 130, 255, 0.18), transparent 35%),
+    radial-gradient(circle at 90% 90%, rgba(200, 50, 255, 0.14), transparent 35%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.card {
+  width: min(94vw, 420px);
+  max-height: calc(100dvh - 16px);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow), inset 0 1px rgba(255, 255, 255, 0.13);
+  animation: cardIn 0.35s ease-out;
+  overflow-y: auto;
+  position: relative;
+}
+
+.game-container {
+  width: min(96vw, 680px);
+  max-height: calc(100dvh - 12px);
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  position: relative;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hidden { display: none !important; }
+
+h1 {
+  width: 100%;
+  text-align: left;
+  font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #fff, var(--accent), var(--p2-color));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+h2 {
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+p { color: var(--muted); font-size: 0.9rem; }
+
+.input-field {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  outline: none;
+  color: white;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  margin: 8px 0 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(50, 149, 255, 0.2);
+}
+
+button.btn {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  color: #07101e;
+  background: linear-gradient(135deg, #91bdff, var(--accent));
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 5px 0 #28599c, 0 10px 18px rgba(64, 135, 255, 0.25);
+}
+
+button.btn:hover { transform: translateY(-2px); opacity: 0.95; }
+button.btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #28599c; }
+
+.btn-back {
+  color: white !important;
+  background: linear-gradient(135deg, #465273, #29334f) !important;
+  box-shadow: 0 5px 0 #1a2239, 0 10px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+  margin: 16px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.scoreboard {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.score-card {
+  flex: 1;
+  padding: 6px 10px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.score-card.active-p1 {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.score-card.active-ai {
+  border-color: var(--p2-color);
+  box-shadow: 0 0 12px var(--p2-color);
+}
+
+.player-name {
+  margin-bottom: 1px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.score-val { font-size: 1.3rem; font-weight: 900; }
+.p1-text { color: var(--accent); }
+.ai-text { color: var(--p2-color); }
+
+.board {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(2, 8, 23, 0.65);
+}
+
+.board .row {
+  width: max-content;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  z-index: 2;
+  border-radius: 50%;
+  background: #aebbd4;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08), 0 0 8px rgba(174, 187, 212, 0.6);
+}
+
+.h-line, .v-line {
+  z-index: 1;
+  border-radius: 5px;
+  background: #26344d;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.h-line:hover:not(.taken), .v-line:hover:not(.taken) {
+  background: #6680a9;
+  box-shadow: 0 0 8px rgba(114, 167, 255, 0.8);
+}
+
+.h-line { height: 8px; }
+.v-line { width: 8px; }
+
+.grid-3 .h-line { width: 54px; } .grid-3 .v-line { height: 54px; } .grid-3 .box { width: 54px; height: 54px; font-size: 1.1rem; }
+.grid-4 .h-line { width: 42px; } .grid-4 .v-line { height: 42px; } .grid-4 .box { width: 42px; height: 42px; font-size: 0.95rem; }
+.grid-5 .h-line { width: 32px; } .grid-5 .v-line { height: 32px; } .grid-5 .box { width: 32px; height: 32px; font-size: 0.85rem; }
+.grid-6 .h-line { width: 25px; } .grid-6 .v-line { height: 25px; } .grid-6 .box { width: 25px; height: 25px; font-size: 0.72rem; }
+.grid-8 .h-line { width: 18px; } .grid-8 .v-line { height: 18px; } .grid-8 .box { width: 18px; height: 18px; font-size: 0.55rem; }
+
+.grid-8 .dot { width: 7px; height: 7px; flex: 0 0 7px; }
+.grid-8 .h-line { height: 7px; }
+.grid-8 .v-line { width: 7px; }
+
+.line.taken.p1 {
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  cursor: default;
+}
+
+.line.taken.ai {
+  background: var(--p2-color);
+  box-shadow: 0 0 10px var(--p2-color);
+  cursor: default;
+}
+
+/* NEON GREEN LAST MOVE HIGHLIGHT */
+.line.last-move {
+  background: #22c55e !important;
+  box-shadow: 0 0 12px #22c55e, 0 0 20px #22c55e !important;
+  z-index: 5 !important;
+}
+
+.box {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.box.filled-p1 { color: #ffffff; background: var(--accent); opacity: 0.85; }
+.box.filled-ai { color: #ffffff; background: var(--p2-color); opacity: 0.85; }
+
+.hockey-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  position: relative;
+}
+
+#hockey-canvas {
+  background: #0b1120;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), inset 0 0 12px rgba(255, 255, 255, 0.05);
+  touch-action: none;
+  cursor: crosshair;
+  max-width: 100%;
+  height: auto;
+}
+
+/* MINI CHAT ROOM COMPACT STYLING */
+.chat-container {
+  width: 100%;
+  background: rgba(8, 12, 24, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 6px 8px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: left;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-messages {
+  height: 75px;
+  max-height: 80px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 2px;
+  font-size: 11px;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 3px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 3px 8px;
+  border-radius: 8px;
+  line-height: 1.25;
+  word-break: break-word;
+  font-size: 11px;
+}
+
+.chat-bubble.me {
+  align-self: flex-end;
+  background: rgba(50, 149, 255, 0.3);
+  border: 1px solid rgba(50, 149, 255, 0.4);
+  color: #e0f2fe;
+}
+
+.chat-bubble.them {
+  align-self: flex-start;
+  background: rgba(255, 62, 170, 0.25);
+  border: 1px solid rgba(255, 62, 170, 0.4);
+  color: #fce7f3;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 11px;
+  height: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: var(--accent);
+}
+
+.chat-send-btn {
+  padding: 0 10px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #000;
+  font-weight: 800;
+  font-size: 11px;
+  border: none;
+  cursor: pointer;
+}
+
+.game-toolbar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  gap: 5px;
+}
+
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eaf2ff;
+  background: linear-gradient(145deg, #35476c, #1a2744);
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.setting-item {
+  margin: 10px 0;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.color-options {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.color-btn {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.color-btn.selected {
+  transform: scale(1.15);
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.switch { position: relative; width: 42px; height: 22px; display: inline-block; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0; cursor: pointer; border-radius: 30px; background: #39445f;
+}
+.slider::before {
+  content: ""; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px;
+  border-radius: 50%; background: white; transition: 0.2s;
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+.modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.modal-content {
+  width: min(92vw, 340px);
+  padding: 20px; text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #293655, #151d34);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+
+#toast-container {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(18, 26, 43, 0.95);
+  border: 1px solid var(--accent);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  animation: toastFade 3s ease forwards;
+}
+
+@keyframes toastFade {
+  0% { opacity: 0; transform: translateY(-10px); }
+  15% { opacity: 1; transform: translateY(0); }
+  85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.leaderboard-table-container {
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  margin: 12px 0;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.leaderboard-table th {
+  position: sticky;
+  top: 0;
+  background: #151c30;
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 2;
+}
+
+.leaderboard-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 11px;
+}
+
+.rank-1 { background: linear-gradient(135deg, #ffe066, #f59f00); color: #000; }
+.rank-2 { background: linear-gradient(135deg, #e9ecef, #adb5bd); color: #000; }
+.rank-3 { background: linear-gradient(135deg, #f08c00, #d9480f); color: #fff; }
+.rank-other { color: var(--muted); }
+</style>
+</head>
+
+<body>
+<div class="app-wrapper">
+  
+  <div id="toast-container"></div>
+
+  <!-- 1. LOGIN PAGE -->
+  <div id="login-page" class="card">
+    <h2 class="text-2xl font-bold bg-gradient-to-r from-white to-blue-400 bg-clip-text text-transparent">Welcome Back</h2>
+    <p class="mb-3">Enter Player ID to play & sync ranking</p>
+    <input type="text" id="user-id-input" class="input-field" placeholder="Enter Player ID (e.g. Alex99)" spellcheck="false" maxlength="20" />
+    <button class="btn" onclick="login()">Enter Game</button>
+  </div>
+
+  <!-- 2. MAIN MENU -->
+  <div id="main-menu" class="card hidden">
+    <h2 id="welcome-text">Welcome</h2>
+    <button class="btn" onclick="showPage('select-game-page')">Play Game</button>
+    <button class="btn" onclick="showLeaderboard()">Leaderboard</button>
+    <button class="btn" onclick="showPage('settings-page')">Settings</button>
+    <button class="btn btn-back" onclick="logout()" style="margin-top:10px;">Logout</button>
+  </div>
+
+  <!-- 2.5 SELECT GAME PAGE -->
+  <div id="select-game-page" class="card hidden">
+    <h2>Select Game</h2>
+    <p class="mb-4">Choose game mode to play</p>
+    <button class="btn" onclick="chooseGame('dots')">Dots & Boxes 3D</button>
+    <button class="btn" onclick="chooseGame('hockey')" style="background:linear-gradient(135deg, #ff8da1, #ff3eaa); color:white;">Air Hockey 3D</button>
+    <button class="btn btn-back" onclick="showPage('main-menu')" style="margin-top:10px;">Back to Menu</button>
+  </div>
+
+  <!-- 3. GAME MODE SELECT -->
+  <div id="game-mode-page" class="card hidden">
+    <h2>Select Mode</h2>
+    <button class="btn" onclick="startComputerGame()">Play vs Computer</button>
+    <button class="btn" onclick="startOnlineSearch()" style="background:linear-gradient(135deg,#b77cff,#8032ff); color:white;">Play Online</button>
+    <button class="btn btn-back" onclick="showPage('select-game-page')" style="margin-top:10px;">Back to Select Game</button>
+  </div>
+
+  <!-- 4. ONLINE SEARCH MATCHMAKING -->
+  <div id="online-search-page" class="card hidden">
+    <h2>Searching Opponent</h2>
+    <div class="spinner"></div>
+    <p>Finding real-time player...</p>
+    <button class="btn btn-back" onclick="cancelOnlineSearch()" style="margin-top:16px;">Cancel Search</button>
+  </div>
+
+  <!-- 5. SETTINGS PAGE -->
+  <div id="settings-page" class="card hidden">
+    <h2>Settings</h2>
+    <div class="setting-item">
+      <span>Sound Effects</span>
+      <label class="switch">
+        <input type="checkbox" id="sound-toggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-item" style="flex-direction:column; align-items:flex-start; gap:8px;">
+      <span>Select Accent Color:</span>
+      <div class="color-options w-full">
+        <div class="color-btn selected" style="background:#3295ff" onclick="changeTheme('#3295ff','#080b18', this)"></div>
+        <div class="color-btn" style="background:#a6e3a1" onclick="changeTheme('#a6e3a1','#111b13', this)"></div>
+        <div class="color-btn" style="background:#f38ba8" onclick="changeTheme('#f38ba8','#1f1315', this)"></div>
+        <div class="color-btn" style="background:#fab387" onclick="changeTheme('#fab387','#241a15', this)"></div>
+        <div class="color-btn" style="background:#cba6f7" onclick="changeTheme('#cba6f7','#1b1324', this)"></div>
+      </div>
+    </div>
+    <button class="btn btn-back" onclick="showPage('main-menu')">Back to Menu</button>
+  </div>
+
+  <!-- 6. LEADERBOARD PAGE -->
+  <div id="leaderboard-page" class="card hidden">
+    <h2>🏆 Global Leaderboard</h2>
+    <p>Top players ranked by total victories</p>
+    
+    <div class="leaderboard-table-container">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player ID</th>
+            <th style="text-align:right;">Wins</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <tr><td colspan="3" style="text-align:center; padding:16px; color:var(--muted);">Loading ranking...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button class="btn btn-back" onclick="showPage('main-menu')">Back to Menu</button>
+  </div>
+
+  <!-- 7. GAME PAGE -->
+  <div id="game-page" class="game-container hidden">
+    <div class="game-toolbar">
+      <button class="icon-btn" id="pause-icon" title="Pause Game" onclick="togglePause()">⏸</button>
+      <button class="icon-btn" title="Restart Game" onclick="confirmRestart()">↻</button>
+      <button class="icon-btn" title="Settings" onclick="showPage('settings-page')">⚙</button>
+    </div>
+
+    <h1 id="game-title" class="mt-0 text-left">Dots & Boxes 3D</h1>
+
+    <div id="grid-selector-box" class="w-full flex items-center justify-between my-1 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+      <label for="grid-select" class="text-gray-300 font-semibold">Grid Size:</label>
+      <select id="grid-select" class="bg-slate-800 text-white rounded px-2 py-1 outline-none border border-white/20 text-xs cursor-pointer">
+        <option value="3">Small (3 × 3)</option>
+        <option value="4" selected>Medium (4 × 4)</option>
+        <option value="5">Large (5 × 5)</option>
+        <option value="6">X-Large (6 × 6)</option>
+        <option value="8">Pro (8 × 8)</option>
+      </select>
+    </div>
+
+    <div class="scoreboard">
+      <div id="p1-card" class="score-card active-p1">
+        <div class="player-name p1-text" id="player-display-name">You</div>
+        <div id="p1-score" class="score-val">0</div>
+      </div>
+      <div id="ai-card" class="score-card">
+        <div class="player-name ai-text" id="opponent-display-name">CPU</div>
+        <div id="ai-score" class="score-val">0</div>
+      </div>
+    </div>
+
+    <!-- Dots & Boxes Board Container -->
+    <div id="dots-board" class="board grid-4"></div>
+
+    <!-- Air Hockey Board Canvas Container -->
+    <div id="hockey-wrapper" class="hockey-wrapper hidden">
+      <canvas id="hockey-canvas" width="300" height="420"></canvas>
+    </div>
+
+    <!-- Mini Chat Room (Only visible in Online Mode) -->
+    <div id="chat-room" class="chat-container hidden">
+      <div class="chat-header">
+        <span>💬 Game Chat</span>
+        <span id="chat-status-text" class="text-[10px] text-green-400">Live</span>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-bubble them">
+          <span style="font-weight:bold; display:block; font-size:10px; opacity:0.85;">System</span>
+          <span>Welcome to the game! Chat with your opponent here.</span>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type message..." maxlength="80" />
+        <button class="chat-send-btn" onclick="sendChatMessage()">Send</button>
+      </div>
+    </div>
+
+    <div class="w-full mt-2">
+      <button class="btn btn-back" onclick="confirmLeaveGame()">Back to Menu</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- GAME OVER MODAL -->
+<div id="game-over-modal" class="modal">
+  <div class="modal-content">
+    <h2 id="winner-title" class="text-2xl font-bold mb-2">Game Over</h2>
+    <p id="winner-msg" class="mb-4 text-gray-300"></p>
+    <button class="btn" onclick="initGame(true)">Play Again</button>
+    <button class="btn btn-back" onclick="closeGameOverModal(); showPage('main-menu');">Main Menu</button>
+  </div>
+</div>
+
+<!-- CONFIRMATION MODAL -->
+<div id="confirm-modal" class="modal">
+  <div class="modal-content">
+    <h2 id="confirm-title" class="text-xl font-bold mb-2">Are you sure?</h2>
+    <p id="confirm-msg" class="mb-4 text-gray-300">Do you want to proceed?</p>
+    <div class="flex gap-2">
+      <button class="btn btn-back" onclick="closeConfirmModal(false)">Cancel</button>
+      <button class="btn" id="confirm-yes-btn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const { Client, Databases, ID, Query } = Appwrite;
+
+const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+const APPWRITE_PROJECT_ID = '6a9ebdc600050066a348';
+const DATABASE_ID = '6a9eca7a002b27d358bb';
+
+const COLLECTION_GAMES = 'games';
+const COLLECTION_LEADERBOARD = 'leaderboard';
+
+const appwriteClient = new Client();
+appwriteClient.setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID);
+
+const databases = new Databases(appwriteClient);
+
+/* ==================== GAME & APP STATE ==================== */
+let loggedInUser = "Player";
+let userLeaderboardDocId = null;
+let userWins = 0;
+
+let selectedGameType = "dots"; // "dots" or "hockey"
+let gameMode = "computer"; // "computer" or "online"
+let currentGameDoc = null;
+let gameUnsubscribe = null;
+let myRole = "p1"; // "p1" or "ai"
+let isPaused = false;
+
+let p1Name = "You";
+let p2Name = "CPU";
+let p1Color = "#3295ff";
+let p2Color = "#ff3eaa";
+
+const P1 = "p1";
+const AI = "ai";
+
+/* Dots State */
+let gridSize = 4;
+let startingPlayer = P1;
+let currentPlayer = P1;
+let p1Score = 0;
+let aiScore = 0;
+let hLines = [];
+let vLines = [];
+let boxes = [];
+let lastMoveLineElement = null;
+let lastProcessedChatTime = 0;
+
+const PRESET_COLORS = ['#3295ff', '#a6e3a1', '#f38ba8', '#fab387', '#cba6f7'];
+
+/* ==================== AUDIO SYNTHESIZER ==================== */
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function playSound(type) {
+  const soundEnabled = document.getElementById("sound-toggle").checked;
+  if (!soundEnabled) return;
+
+  try {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'click') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } else if (type === 'hit') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(520, now + 0.08);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } else if (type === 'goal') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.exponentialRampToValueAtTime(900, now + 0.35);
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'box') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.08);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } else if (type === 'win') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.1);
+      osc.frequency.setValueAtTime(783.99, now + 0.2);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+      osc.start(now);
+      osc.stop(now + 0.45);
+    }
+  } catch (e) { console.warn("Audio error:", e); }
+}
+
+/* ==================== HELPER UI MODALS & TOASTS ==================== */
+function showToast(msg) {
+  const container = document.getElementById("toast-container");
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function showConfirmModal(title, msg, onConfirm) {
+  document.getElementById("confirm-title").textContent = title;
+  document.getElementById("confirm-msg").textContent = msg;
+  const yesBtn = document.getElementById("confirm-yes-btn");
+  
+  const newYesBtn = yesBtn.cloneNode(true);
+  yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+  
+  newYesBtn.addEventListener("click", () => {
+    closeConfirmModal();
+    onConfirm();
+  });
+  
+  document.getElementById("confirm-modal").style.display = "flex";
+}
+
+function closeConfirmModal() {
+  document.getElementById("confirm-modal").style.display = "none";
+}
+
+function closeGameOverModal() {
+  document.getElementById("game-over-modal").style.display = "none";
+}
+
+function showPage(pageId) {
+  const pages = [
+    "login-page", "main-menu", "select-game-page", "game-mode-page", 
+    "online-search-page", "settings-page", "leaderboard-page", "game-page"
+  ];
+  pages.forEach(id => document.getElementById(id).classList.add("hidden"));
+  document.getElementById(pageId).classList.remove("hidden");
+}
+
+function changeTheme(accentColor, backgroundColor, btnEl) {
+  p1Color = accentColor;
+  document.documentElement.style.setProperty("--accent", accentColor);
+  document.documentElement.style.setProperty("--bg", backgroundColor);
+  
+  if (btnEl) {
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+    btnEl.classList.add('selected');
+  }
+}
+
+function chooseGame(type) {
+  selectedGameType = type;
+  showPage("game-mode-page");
+}
+
+/* ==================== LEADERBOARD & AUTH LOGIC ==================== */
+async function login() {
+  const input = document.getElementById("user-id-input").value.trim();
+  if (!input) {
+    showToast("Please enter a Player ID!");
+    return;
+  }
+  loggedInUser = input;
+  p1Name = input;
+  document.getElementById("welcome-text").textContent = "Welcome, " + loggedInUser;
+
+  await registerOrFetchLeaderboardUser(loggedInUser);
+  showPage("main-menu");
+}
+
+function logout() {
+  loggedInUser = "Player";
+  userLeaderboardDocId = null;
+  userWins = 0;
+  document.getElementById("user-id-input").value = "";
+  if (gameUnsubscribe) gameUnsubscribe();
+  cancelOnlineSearch();
+  showPage("login-page");
+}
+
+async function registerOrFetchLeaderboardUser(userId) {
+  try {
+    const res = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_LEADERBOARD,
+      [Query.equal('userId', userId), Query.limit(1)]
+    );
+
+    if (res.documents.length > 0) {
+      userLeaderboardDocId = res.documents[0].$id;
+      userWins = res.documents[0].wins || 0;
+    } else {
+      const newDoc = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTION_LEADERBOARD,
+        ID.unique(),
+        { userId: userId, wins: 0 }
+      );
+      userLeaderboardDocId = newDoc.$id;
+      userWins = 0;
+    }
+  } catch (err) {
+    console.error("Leaderboard user registration failed:", err);
+  }
+}
+
+async function incrementPlayerWins() {
+  userWins++;
+  if (!userLeaderboardDocId) {
+    await registerOrFetchLeaderboardUser(loggedInUser);
+  }
+
+  if (userLeaderboardDocId) {
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTION_LEADERBOARD,
+        userLeaderboardDocId,
+        { wins: userWins }
+      );
+    } catch (err) {
+      console.error("Failed to update wins in Appwrite:", err);
+    }
+  }
+}
+
+async function showLeaderboard() {
+  showPage("leaderboard-page");
+  const body = document.getElementById("leaderboard-body");
+  body.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:16px; color:var(--muted);">Loading ranking...</td></tr>`;
+
+  try {
+    const res = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_LEADERBOARD,
+      [Query.orderDesc('wins'), Query.limit(50)]
+    );
+
+    body.innerHTML = "";
+    if (res.documents.length === 0) {
+      body.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:16px; color:var(--muted);">No records found.</td></tr>`;
+      return;
+    }
+
+    res.documents.forEach((doc, index) => {
+      const rank = index + 1;
+      const isMe = doc.userId === loggedInUser;
+      const row = document.createElement("tr");
+      if (isMe) row.style.background = "rgba(50, 149, 255, 0.22)";
+
+      let rankBadge = `<span class="rank-badge rank-other">${rank}</span>`;
+      if (rank === 1) rankBadge = `<span class="rank-badge rank-1">🥇</span>`;
+      if (rank === 2) rankBadge = `<span class="rank-badge rank-2">🥈</span>`;
+      if (rank === 3) rankBadge = `<span class="rank-badge rank-3">🥉</span>`;
+
+      row.innerHTML = `
+        <td>${rankBadge}</td>
+        <td>${doc.userId} ${isMe ? ' <span style="font-size:10px; opacity:0.8;">(You)</span>' : ''}</td>
+        <td style="text-align:right; font-weight:800; color:var(--accent);">${doc.wins || 0}</td>
+      `;
+      body.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error("Leaderboard fetch error:", err);
+    body.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:16px; color:#ff6b6b;">Failed to load leaderboard.</td></tr>`;
+  }
+}
+
+/* ==================== GAME MATCHMAKING & MODES ==================== */
+function startComputerGame() {
+  gameMode = "computer";
+  myRole = P1;
+  p1Name = loggedInUser;
+  p2Name = "CPU";
+  p2Color = "#ff3eaa";
+
+  document.documentElement.style.setProperty("--accent", p1Color);
+  document.documentElement.style.setProperty("--p2-color", p2Color);
+
+  document.getElementById("player-display-name").textContent = p1Name;
+  document.getElementById("opponent-display-name").textContent = p2Name;
+  
+  // REQUIREMENT 2: Completely hide chat system when playing vs Computer
+  document.getElementById("chat-room").classList.add("hidden");
+
+  showPage("game-page");
+  initGame(true);
+}
+
+async function startOnlineSearch() {
+  gameMode = "online";
+  showPage("online-search-page");
+
+  try {
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_GAMES,
+      [
+        Query.equal('status', 'waiting'),
+        Query.equal('gameType', selectedGameType),
+        Query.limit(1)
+      ]
+    );
+
+    if (response.documents.length > 0) {
+      const matchDoc = response.documents[0];
+      if (matchDoc.player1 === loggedInUser) return;
+
+      myRole = AI; // Player 2 Role
+      let chosenP2Color = p1Color;
+
+      if (chosenP2Color.toLowerCase() === (matchDoc.p1Color || "").toLowerCase()) {
+        chosenP2Color = PRESET_COLORS.find(c => c.toLowerCase() !== matchDoc.p1Color.toLowerCase()) || '#ff3eaa';
+      }
+
+      currentGameDoc = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTION_GAMES,
+        matchDoc.$id,
+        {
+          player2: loggedInUser,
+          p2Color: chosenP2Color,
+          status: 'playing'
+        }
+      );
+
+      listenToGameUpdates(matchDoc.$id);
+      startOnlineGameUI(currentGameDoc);
+    } else {
+      myRole = P1; // Player 1 Role
+      currentGameDoc = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTION_GAMES,
+        ID.unique(),
+        {
+          player1: loggedInUser,
+          p1Color: p1Color,
+          player2: "",
+          p2Color: "",
+          gameType: selectedGameType,
+          status: "waiting",
+          turn: P1,
+          gridSize: gridSize,
+          lastMove: "",
+          lastChat: "",
+          isPaused: false,
+          isRestarted: false
+        }
+      );
+
+      listenToGameUpdates(currentGameDoc.$id);
+    }
+  } catch (err) {
+    console.error("Matchmaking error:", err);
+    showToast("Matchmaking failed. Check Appwrite connection.");
+    showPage("game-mode-page");
+  }
+}
+
+async function cancelOnlineSearch() {
+  if (currentGameDoc && currentGameDoc.status === 'waiting') {
+    try {
+      await databases.deleteDocument(DATABASE_ID, COLLECTION_GAMES, currentGameDoc.$id);
+    } catch(e) {}
+  }
+  if (gameUnsubscribe) gameUnsubscribe();
+  currentGameDoc = null;
+  showPage("game-mode-page");
+}
+
+function listenToGameUpdates(gameId) {
+  if (gameUnsubscribe) gameUnsubscribe();
+
+  gameUnsubscribe = appwriteClient.subscribe(
+    `databases.${DATABASE_ID}.collections.${COLLECTION_GAMES}.documents.${gameId}`,
+    response => {
+      const doc = response.payload;
+      
+      if (currentGameDoc && currentGameDoc.status === 'waiting' && doc.status === 'playing') {
+        currentGameDoc = doc;
+        startOnlineGameUI(doc);
+      }
+
+      if (doc.status === 'playing') {
+        if (doc.isPaused !== isPaused) {
+          isPaused = doc.isPaused;
+          togglePauseUI(isPaused);
+        }
+
+        if (doc.gridSize && doc.gridSize !== gridSize) {
+          gridSize = doc.gridSize;
+          const gridSelect = document.getElementById("grid-select");
+          if (gridSelect) gridSelect.value = gridSize.toString();
+          initGame(true);
+        } else if (doc.isRestarted) {
+          initGame(true);
+          if (myRole === P1) {
+            databases.updateDocument(DATABASE_ID, COLLECTION_GAMES, gameId, { isRestarted: false });
+          }
+        }
+
+        // Live Chat Message Sync
+        if (doc.lastChat && gameMode === "online") {
+          try {
+            const chatData = JSON.parse(doc.lastChat);
+            if (chatData.timestamp && chatData.timestamp !== lastProcessedChatTime) {
+              lastProcessedChatTime = chatData.timestamp;
+              if (chatData.sender !== loggedInUser) {
+                appendChatMessage(chatData.sender, chatData.text, false);
+                playSound('click');
+              }
+            }
+          } catch(e) {}
+        }
+
+        // Move Sync
+        if (doc.lastMove) {
+          try {
+            const moveData = JSON.parse(doc.lastMove);
+            if (moveData.sender !== myRole) {
+              if (selectedGameType === "dots") {
+                executeMoveLocally(moveData.type, moveData.r, moveData.c, moveData.sender);
+              } else if (selectedGameType === "hockey") {
+                receiveOnlineHockeyMove(moveData);
+              }
+            }
+          } catch(e) {}
+        }
+      }
+    }
+  );
+}
+
+function startOnlineGameUI(doc) {
+  p1Name = doc.player1;
+  p2Name = doc.player2 || "Player 2";
+  p1Color = doc.p1Color || "#3295ff";
+  p2Color = doc.p2Color || "#ff3eaa";
+
+  document.documentElement.style.setProperty("--accent", p1Color);
+  document.documentElement.style.setProperty("--p2-color", p2Color);
+
+  document.getElementById("player-display-name").textContent = p1Name;
+  document.getElementById("opponent-display-name").textContent = p2Name;
+  document.getElementById("chat-status-text").textContent = "Online Sync";
+
+  // Show Chat System in Online Mode
+  document.getElementById("chat-room").classList.remove("hidden");
+  resetChatBox();
+
+  showPage("game-page");
+  initGame(true);
+}
+
+function confirmLeaveGame() {
+  showConfirmModal("Leave Game?", "Are you sure you want to return to menu?", () => {
+    stopHockeyLoop();
+    if (gameUnsubscribe) gameUnsubscribe();
+    showPage("select-game-page");
+  });
+}
+
+/* ==================== CORE GAME ROUTING ==================== */
+function initGame(fullReset = false) {
+  p1Score = 0;
+  aiScore = 0;
+  document.getElementById("p1-score").textContent = "0";
+  document.getElementById("ai-score").textContent = "0";
+  closeGameOverModal();
+  isPaused = false;
+  togglePauseUI(false);
+
+  if (fullReset) {
+    startingPlayer = P1;
+  } else {
+    startingPlayer = startingPlayer === P1 ? AI : P1;
+  }
+  currentPlayer = startingPlayer;
+
+  const dotsBoard = document.getElementById("dots-board");
+  const hockeyWrapper = document.getElementById("hockey-wrapper");
+  const gridSelectBox = document.getElementById("grid-selector-box");
+  const gameTitle = document.getElementById("game-title");
+
+  if (selectedGameType === "dots") {
+    stopHockeyLoop();
+    gameTitle.textContent = "Dots & Boxes 3D";
+    dotsBoard.classList.remove("hidden");
+    hockeyWrapper.classList.add("hidden");
+    gridSelectBox.classList.remove("hidden");
+
+    initDotsGame();
+  } else {
+    gameTitle.textContent = "Air Hockey 3D";
+    dotsBoard.classList.add("hidden");
+    hockeyWrapper.classList.remove("hidden");
+    gridSelectBox.classList.add("hidden");
+
+    initHockeyGame();
+  }
+
+  updateTurnUI();
+}
+
+/* ==================== DOTS & BOXES GAME LOGIC ==================== */
+function initDotsGame() {
+  const gridSelect = document.getElementById("grid-select");
+  gridSize = parseInt(gridSelect.value);
+
+  hLines = Array.from({ length: gridSize + 1 }, () => Array(gridSize).fill(null));
+  vLines = Array.from({ length: gridSize }, () => Array(gridSize + 1).fill(null));
+  boxes = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
+
+  if (lastMoveLineElement) {
+    lastMoveLineElement.classList.remove("last-move");
+    lastMoveLineElement = null;
+  }
+
+  renderDotsBoard();
+
+  if (gameMode === "computer" && currentPlayer === AI) {
+    setTimeout(aiDotsMove, 500);
+  }
+}
+
+function renderDotsBoard() {
+  const boardEl = document.getElementById("dots-board");
+  boardEl.innerHTML = "";
+  boardEl.className = "board grid-" + gridSize;
+
+  for (let r = 0; r <= gridSize; r++) {
+    const hRow = document.createElement("div");
+    hRow.className = "row";
+
+    for (let c = 0; c < gridSize; c++) {
+      const dot = document.createElement("div");
+      dot.className = "dot";
+      hRow.appendChild(dot);
+
+      const line = document.createElement("div");
+      line.className = "h-line line";
+      line.dataset.type = "h";
+      line.dataset.r = r;
+      line.dataset.c = c;
+      line.addEventListener("click", handleLineClick);
+      hRow.appendChild(line);
+    }
+
+    const lastDot = document.createElement("div");
+    lastDot.className = "dot";
+    hRow.appendChild(lastDot);
+    boardEl.appendChild(hRow);
+
+    if (r < gridSize) {
+      const vRow = document.createElement("div");
+      vRow.className = "row";
+
+      for (let c = 0; c <= gridSize; c++) {
+        const line = document.createElement("div");
+        line.className = "v-line line";
+        line.dataset.type = "v";
+        line.dataset.r = r;
+        line.dataset.c = c;
+        line.addEventListener("click", handleLineClick);
+        vRow.appendChild(line);
+
+        if (c < gridSize) {
+          const box = document.createElement("div");
+          box.className = "box";
+          box.id = `box-${r}-${c}`;
+          vRow.appendChild(box);
+        }
+      }
+      boardEl.appendChild(vRow);
+    }
+  }
+}
+
+async function handleLineClick(event) {
+  if (isPaused || currentPlayer !== myRole) return;
+
+  const type = event.target.dataset.type;
+  const r = parseInt(event.target.dataset.r);
+  const c = parseInt(event.target.dataset.c);
+
+  if (gameMode === "online") {
+    if (executeMoveLocally(type, r, c, myRole)) {
+      try {
+        await databases.updateDocument(
+          DATABASE_ID,
+          COLLECTION_GAMES,
+          currentGameDoc.$id,
+          {
+            lastMove: JSON.stringify({ type, r, c, sender: myRole }),
+            turn: currentPlayer
+          }
+        );
+      } catch (err) { console.error(err); }
+    }
+  } else {
+    if (executeMoveLocally(type, r, c, P1)) {
+      if (checkDotsGameOver()) return;
+      if (currentPlayer === AI) setTimeout(aiDotsMove, 400);
+    }
+  }
+}
+
+function executeMoveLocally(type, r, c, player) {
+  const lineArray = type === "h" ? hLines : vLines;
+  if (lineArray[r][c] !== null) return false;
+
+  lineArray[r][c] = player;
+  playSound('click');
+
+  const lineElement = document.querySelector(`.line[data-type="${type}"][data-r="${r}"][data-c="${c}"]`);
+  if (lineElement) {
+    lineElement.classList.add("taken", player);
+
+    // NEON GREEN LAST MOVE HIGHLIGHT
+    if (lastMoveLineElement) {
+      lastMoveLineElement.classList.remove("last-move");
+    }
+    lineElement.classList.add("last-move");
+    lastMoveLineElement = lineElement;
+  }
+
+  const completed = checkBoxes(type, r, c, player);
+
+  if (completed > 0) {
+    playSound('box');
+    if (player === P1) p1Score += completed;
+    else aiScore += completed;
+    updateScores();
+  } else {
+    currentPlayer = currentPlayer === P1 ? AI : P1;
+    updateTurnUI();
+  }
+
+  checkDotsGameOver();
+  return true;
+}
+
+function checkBoxes(type, r, c, player) {
+  let completed = 0;
+  getAffectedBoxes(type, r, c).forEach(({br, bc}) => {
+    if (boxes[br][bc] === null && getBoxEdgeCount(br, bc) === 4) {
+      boxes[br][bc] = player;
+      const boxElement = document.getElementById(`box-${br}-${bc}`);
+      if (boxElement) {
+        boxElement.classList.add(`filled-${player}`);
+        boxElement.textContent = (player === P1 ? p1Name : p2Name).charAt(0).toUpperCase();
+      }
+      completed++;
+    }
+  });
+  return completed;
+}
+
+function getAffectedBoxes(type, r, c) {
+  const result = [];
+  if (type === "h") {
+    if (r > 0) result.push({br: r - 1, bc: c});
+    if (r < gridSize) result.push({br: r, bc: c});
+  } else {
+    if (c > 0) result.push({br: r, bc: c - 1});
+    if (c < gridSize) result.push({br: r, bc: c});
+  }
+  return result;
+}
+
+function getBoxEdgeCount(r, c) {
+  let count = 0;
+  if (hLines[r][c] !== null) count++;
+  if (hLines[r + 1][c] !== null) count++;
+  if (vLines[r][c] !== null) count++;
+  if (vLines[r][c + 1] !== null) count++;
+  return count;
+}
+
+function aiDotsMove() {
+  if (isPaused || currentPlayer !== AI) return;
+  const availableMoves = getAllAvailableMoves();
+  if (!availableMoves.length) return;
+
+  for (const move of availableMoves) {
+    if (createsBox(move)) {
+      executeMoveLocally(move.type, move.r, move.c, AI);
+      if (!checkDotsGameOver() && currentPlayer === AI) setTimeout(aiDotsMove, 400);
+      return;
+    }
+  }
+
+  const safeMoves = availableMoves.filter(move => !givesAwayBox(move));
+  const choice = safeMoves.length
+    ? safeMoves[Math.floor(Math.random() * safeMoves.length)]
+    : availableMoves[Math.floor(Math.random() * availableMoves.length)];
+
+  executeMoveLocally(choice.type, choice.r, choice.c, AI);
+
+  if (!checkDotsGameOver() && currentPlayer === AI) {
+    setTimeout(aiDotsMove, 400);
+  }
+}
+
+function getAllAvailableMoves() {
+  const moves = [];
+  for (let r = 0; r <= gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
+      if (hLines[r][c] === null) moves.push({type: "h", r, c});
+    }
+  }
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c <= gridSize; c++) {
+      if (vLines[r][c] === null) moves.push({type: "v", r, c});
+    }
+  }
+  return moves;
+}
+
+function createsBox(move) {
+  return getAffectedBoxes(move.type, move.r, move.c).some(({br, bc}) => getBoxEdgeCount(br, bc) === 3);
+}
+
+function givesAwayBox(move) {
+  return getAffectedBoxes(move.type, move.r, move.c).some(({br, bc}) => getBoxEdgeCount(br, bc) === 2);
+}
+
+function checkDotsGameOver() {
+  if (p1Score + aiScore !== gridSize * gridSize) return false;
+  handleGameEnd(p1Score, aiScore);
+  return true;
+}
+
+document.getElementById("grid-select").addEventListener("change", async (e) => {
+  const newSize = parseInt(e.target.value);
+  gridSize = newSize;
+
+  if (gameMode === "online" && currentGameDoc) {
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTION_GAMES,
+        currentGameDoc.$id,
+        {
+          gridSize: gridSize,
+          isRestarted: true
+        }
+      );
+    } catch (err) {
+      console.error("Failed to sync grid size:", err);
+    }
+  } else {
+    initGame(true);
+  }
+});
+
+/* ==================== AIR HOCKEY 3D GAME ENGINE ==================== */
+let hockeyCanvas = null;
+let hockeyCtx = null;
+let hockeyAnimationId = null;
+let lastSyncTime = 0;
+
+const HOCKEY_WIN_SCORE = 7;
+
+// Canonical Table Dimensions
+const TABLE = {
+  width: 300,
+  height: 420,
+  goalWidth: 100,
+  borderMargin: 10
+};
+
+// Physics Entities in Canonical Space
+let puck = {
+  x: TABLE.width / 2,
+  y: TABLE.height / 2,
+  vx: 0,
+  vy: 0,
+  radius: 11,
+  friction: 0.988,
+  maxSpeed: 15
+};
+
+let paddle1 = {
+  x: TABLE.width / 2,
+  y: TABLE.height - 60,
+  vx: 0,
+  vy: 0,
+  targetX: TABLE.width / 2,
+  targetY: TABLE.height - 60,
+  radius: 20,
+  color: "#3295ff"
+};
+
+let paddle2 = {
+  x: TABLE.width / 2,
+  y: 60,
+  vx: 0,
+  vy: 0,
+  targetX: TABLE.width / 2,
+  targetY: 60,
+  radius: 20,
+  color: "#ff3eaa"
+};
+
+let particles = [];
+
+function initHockeyGame() {
+  hockeyCanvas = document.getElementById("hockey-canvas");
+  hockeyCtx = hockeyCanvas.getContext("2d");
+
+  resetPuck(0);
+  paddle1.x = paddle1.targetX = TABLE.width / 2;
+  paddle1.y = paddle1.targetY = TABLE.height - 60;
+  paddle1.color = p1Color;
+
+  paddle2.x = paddle2.targetX = TABLE.width / 2;
+  paddle2.y = paddle2.targetY = 60;
+  paddle2.color = p2Color;
+
+  particles = [];
+
+  hockeyCanvas.removeEventListener("pointermove", handleHockeyPointerMove);
+  hockeyCanvas.removeEventListener("pointerdown", handleHockeyPointerMove);
+  hockeyCanvas.addEventListener("pointermove", handleHockeyPointerMove);
+  hockeyCanvas.addEventListener("pointerdown", handleHockeyPointerMove);
+
+  stopHockeyLoop();
+  runHockeyLoop();
+}
+
+function stopHockeyLoop() {
+  if (hockeyAnimationId) {
+    cancelAnimationFrame(hockeyAnimationId);
+    hockeyAnimationId = null;
+  }
+}
+
+function resetPuck(scorer) {
+  puck.x = TABLE.width / 2;
+  puck.y = TABLE.height / 2;
+  puck.vx = (Math.random() - 0.5) * 4;
+  puck.vy = scorer === 1 ? -4 : (scorer === 2 ? 4 : (Math.random() > 0.5 ? 4 : -4));
+}
+
+/* REQUIREMENT 1: Invert view and touch coordinates for Player 2 so BOTH players see paddle at BOTTOM */
+function handleHockeyPointerMove(e) {
+  if (isPaused) return;
+
+  const rect = hockeyCanvas.getBoundingClientRect();
+  const scaleX = TABLE.width / rect.width;
+  const scaleY = TABLE.height / rect.height;
+
+  const pointerX = (e.clientX - rect.left) * scaleX;
+  const pointerY = (e.clientY - rect.top) * scaleY;
+
+  if (myRole === P1 || gameMode === "computer") {
+    // Player 1 controls paddle at bottom of screen
+    paddle1.targetX = Math.max(TABLE.borderMargin + paddle1.radius, Math.min(TABLE.width - TABLE.borderMargin - paddle1.radius, pointerX));
+    paddle1.targetY = Math.max(TABLE.height / 2 + paddle1.radius + 4, Math.min(TABLE.height - TABLE.borderMargin - paddle1.radius, pointerY));
+  } else {
+    // Player 2 (Guest role) controls paddle at bottom of THEIR screen!
+    // Convert screen coordinates to canonical space by flipping 180 deg
+    const canonicalX = TABLE.width - pointerX;
+    const canonicalY = TABLE.height - pointerY;
+
+    paddle2.targetX = Math.max(TABLE.borderMargin + paddle2.radius, Math.min(TABLE.width - TABLE.borderMargin - paddle2.radius, canonicalX));
+    paddle2.targetY = Math.max(TABLE.borderMargin + paddle2.radius, Math.min(TABLE.height / 2 - paddle2.radius - 4, canonicalY));
+  }
+
+  if (gameMode === "online" && currentGameDoc) {
+    const now = Date.now();
+    if (now - lastSyncTime > 40) {
+      lastSyncTime = now;
+      broadcastOnlineHockeyMove();
+    }
+  }
+}
+
+function runHockeyLoop() {
+  if (!isPaused) {
+    updateHockeyPhysics();
+    renderHockeyCanvas();
+  }
+  hockeyAnimationId = requestAnimationFrame(runHockeyLoop);
+}
+
+function updateHockeyPhysics() {
+  // Paddle 1
+  const prevP1X = paddle1.x;
+  const prevP1Y = paddle1.y;
+  paddle1.x += (paddle1.targetX - paddle1.x) * 0.4;
+  paddle1.y += (paddle1.targetY - paddle1.y) * 0.4;
+  paddle1.vx = paddle1.x - prevP1X;
+  paddle1.vy = paddle1.y - prevP1Y;
+
+  // Paddle 2
+  if (gameMode === "computer") {
+    updateAIBehavior();
+  }
+  const prevP2X = paddle2.x;
+  const prevP2Y = paddle2.y;
+  paddle2.x += (paddle2.targetX - paddle2.x) * 0.35;
+  paddle2.y += (paddle2.targetY - paddle2.y) * 0.35;
+  paddle2.vx = paddle2.x - prevP2X;
+  paddle2.vy = paddle2.y - prevP2Y;
+
+  // Move Puck
+  puck.x += puck.vx;
+  puck.y += puck.vy;
+
+  puck.vx *= puck.friction;
+  puck.vy *= puck.friction;
+
+  const speed = Math.hypot(puck.vx, puck.vy);
+  if (speed > puck.maxSpeed) {
+    puck.vx = (puck.vx / speed) * puck.maxSpeed;
+    puck.vy = (puck.vy / speed) * puck.maxSpeed;
+  }
+
+  // Wall Boundaries
+  const leftWall = TABLE.borderMargin + puck.radius;
+  const rightWall = TABLE.width - TABLE.borderMargin - puck.radius;
+  const topWall = TABLE.borderMargin + puck.radius;
+  const bottomWall = TABLE.height - TABLE.borderMargin - puck.radius;
+  const goalLeft = (TABLE.width - TABLE.goalWidth) / 2;
+  const goalRight = (TABLE.width + TABLE.goalWidth) / 2;
+
+  if (puck.x < leftWall) {
+    puck.x = leftWall;
+    puck.vx *= -0.92;
+    playSound('hit');
+  } else if (puck.x > rightWall) {
+    puck.x = rightWall;
+    puck.vx *= -0.92;
+    playSound('hit');
+  }
+
+  if (puck.y < topWall) {
+    if (puck.x > goalLeft && puck.x < goalRight) {
+      if (puck.y < TABLE.borderMargin - 12) {
+        triggerGoal(1);
+        return;
+      }
+    } else {
+      puck.y = topWall;
+      puck.vy *= -0.92;
+      playSound('hit');
+    }
+  }
+
+  if (puck.y > bottomWall) {
+    if (puck.x > goalLeft && puck.x < goalRight) {
+      if (puck.y > TABLE.height - TABLE.borderMargin + 12) {
+        triggerGoal(2);
+        return;
+      }
+    } else {
+      puck.y = bottomWall;
+      puck.vy *= -0.92;
+      playSound('hit');
+    }
+  }
+
+  checkPaddlePuckCollision(paddle1);
+  checkPaddlePuckCollision(paddle2);
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 0.03;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
+
+function checkPaddlePuckCollision(pad) {
+  const dx = puck.x - pad.x;
+  const dy = puck.y - pad.y;
+  const dist = Math.hypot(dx, dy);
+  const minDist = pad.radius + puck.radius;
+
+  if (dist < minDist) {
+    playSound('hit');
+    const nx = dx / (dist || 1);
+    const ny = dy / (dist || 1);
+
+    const overlap = minDist - dist;
+    puck.x += nx * overlap;
+    puck.y += ny * overlap;
+
+    const kx = puck.vx - pad.vx;
+    const ky = puck.vy - pad.vy;
+    const p = 2 * (nx * kx + ny * ky);
+
+    puck.vx = puck.vx - p * nx + pad.vx * 0.8;
+    puck.vy = puck.vy - p * ny + pad.vy * 0.8;
+
+    const newSpeed = Math.hypot(puck.vx, puck.vy);
+    if (newSpeed < 4) {
+      puck.vx = nx * 5;
+      puck.vy = ny * 5;
+    }
+  }
+}
+
+function updateAIBehavior() {
+  if (puck.y < TABLE.height / 2) {
+    paddle2.targetX = puck.x;
+    paddle2.targetY = Math.min(TABLE.height / 2 - paddle2.radius - 8, puck.y - 10);
+  } else {
+    const goalCenterX = TABLE.width / 2;
+    paddle2.targetX = goalCenterX + (puck.x - goalCenterX) * 0.45;
+    paddle2.targetY = 60;
+  }
+}
+
+function triggerGoal(scorer) {
+  playSound('goal');
+
+  const goalY = scorer === 1 ? TABLE.borderMargin : TABLE.height - TABLE.borderMargin;
+  const pColor = scorer === 1 ? p1Color : p2Color;
+
+  for (let i = 0; i < 30; i++) {
+    particles.push({
+      x: TABLE.width / 2 + (Math.random() - 0.5) * TABLE.goalWidth,
+      y: goalY,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (scorer === 1 ? 1 : -1) * (Math.random() * 6 + 2),
+      color: pColor,
+      radius: Math.random() * 4 + 2,
+      life: 1.0
+    });
+  }
+
+  if (scorer === 1) {
+    p1Score++;
+  } else {
+    aiScore++;
+  }
+  updateScores();
+
+  if (p1Score >= HOCKEY_WIN_SCORE || aiScore >= HOCKEY_WIN_SCORE) {
+    handleGameEnd(p1Score, aiScore);
+  } else {
+    resetPuck(scorer);
+  }
+}
+
+/* REQUIREMENT 1: Inverted Canvas Rendering for Player 2 View */
+function renderHockeyCanvas() {
+  if (!hockeyCtx) return;
+
+  const ctx = hockeyCtx;
+  ctx.clearRect(0, 0, TABLE.width, TABLE.height);
+
+  ctx.save();
+
+  // If local player is Player 2 in online mode, invert view 180 degrees so Player 2 paddle is at BOTTOM!
+  if (gameMode === "online" && myRole === AI) {
+    ctx.translate(TABLE.width, TABLE.height);
+    ctx.rotate(Math.PI);
+  }
+
+  // Draw Table Background
+  ctx.fillStyle = "#0a0f1d";
+  ctx.fillRect(0, 0, TABLE.width, TABLE.height);
+
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.strokeRect(TABLE.borderMargin, TABLE.borderMargin, TABLE.width - TABLE.borderMargin * 2, TABLE.height - TABLE.borderMargin * 2);
+
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
+
+  ctx.beginPath();
+  ctx.moveTo(TABLE.borderMargin, TABLE.height / 2);
+  ctx.lineTo(TABLE.width - TABLE.borderMargin, TABLE.height / 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(TABLE.width / 2, TABLE.height / 2, 38, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+  ctx.beginPath();
+  ctx.arc(TABLE.width / 2, TABLE.height / 2, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  const goalLeft = (TABLE.width - TABLE.goalWidth) / 2;
+
+  // Goals
+  ctx.fillStyle = p2Color;
+  ctx.shadowColor = p2Color;
+  ctx.shadowBlur = 10;
+  ctx.fillRect(goalLeft, TABLE.borderMargin - 5, TABLE.goalWidth, 5);
+
+  ctx.fillStyle = p1Color;
+  ctx.shadowColor = p1Color;
+  ctx.shadowBlur = 10;
+  ctx.fillRect(goalLeft, TABLE.height - TABLE.borderMargin, TABLE.goalWidth, 5);
+  ctx.shadowBlur = 0;
+
+  // Particles
+  particles.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = p.life;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1.0;
+
+  // Puck
+  ctx.save();
+  ctx.shadowColor = "#38bdf8";
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = "#0f172a";
+  ctx.strokeStyle = "#38bdf8";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(puck.x, puck.y, puck.radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  // Paddles
+  drawMallet(paddle1.x, paddle1.y, paddle1.radius, p1Color);
+  drawMallet(paddle2.x, paddle2.y, paddle2.radius, p2Color);
+
+  ctx.restore();
+}
+
+function drawMallet(x, y, radius, color) {
+  const ctx = hockeyCtx;
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 14;
+
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(x, y, radius * 0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+async function broadcastOnlineHockeyMove() {
+  if (!currentGameDoc) return;
+
+  const payload = {
+    type: "hockey_state",
+    sender: myRole,
+    p1: { x: paddle1.x, y: paddle1.y },
+    p2: { x: paddle2.x, y: paddle2.y },
+    puck: { x: puck.x, y: puck.y, vx: puck.vx, vy: puck.vy }
+  };
+
+  try {
+    await databases.updateDocument(
+      DATABASE_ID,
+      COLLECTION_GAMES,
+      currentGameDoc.$id,
+      {
+        lastMove: JSON.stringify(payload),
+        turn: currentPlayer
+      }
+    );
+  } catch (e) {}
+}
+
+function receiveOnlineHockeyMove(data) {
+  if (data.type === "hockey_state") {
+    if (myRole === P1) {
+      paddle2.targetX = data.p2.x;
+      paddle2.targetY = data.p2.y;
+    } else {
+      paddle1.targetX = data.p1.x;
+      paddle1.targetY = data.p1.y;
+      puck.x = data.puck.x;
+      puck.y = data.puck.y;
+      puck.vx = data.puck.vx;
+      puck.vy = data.puck.vy;
+    }
+  }
+}
+
+/* ==================== MINI CHAT ROOM LOGIC ==================== */
+function resetChatBox() {
+  const msgBox = document.getElementById("chat-messages");
+  msgBox.innerHTML = `
+    <div class="chat-bubble them">
+      <span style="font-weight:bold; display:block; font-size:10px; opacity:0.85;">System</span>
+      <span>Game room ready! Chat with opponent below.</span>
+    </div>
+  `;
+}
+
+async function sendChatMessage() {
+  if (gameMode !== "online") return;
+
+  const input = document.getElementById("chat-input");
+  const msgText = input.value.trim();
+  if (!msgText) return;
+
+  const chatObj = {
+    sender: loggedInUser,
+    role: myRole,
+    text: msgText,
+    timestamp: Date.now()
+  };
+
+  appendChatMessage(loggedInUser, msgText, true);
+  input.value = "";
+
+  if (currentGameDoc) {
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTION_GAMES,
+        currentGameDoc.$id,
+        { lastChat: JSON.stringify(chatObj) }
+      );
+    } catch (err) {
+      console.error("Chat sync failed:", err);
+    }
+  }
+}
+
+function appendChatMessage(sender, text, isMe) {
+  const msgBox = document.getElementById("chat-messages");
+  if (!msgBox) return;
+
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble ${isMe ? 'me' : 'them'}`;
+  
+  const senderSpan = document.createElement("span");
+  senderSpan.style.fontWeight = "bold";
+  senderSpan.style.display = "block";
+  senderSpan.style.fontSize = "10px";
+  senderSpan.style.opacity = "0.85";
+  senderSpan.textContent = sender;
+
+  const textSpan = document.createElement("span");
+  textSpan.textContent = text;
+
+  bubble.appendChild(senderSpan);
+  bubble.appendChild(textSpan);
+  msgBox.appendChild(bubble);
+
+  msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+document.getElementById("chat-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendChatMessage();
+});
+
+/* ==================== COMMON GAME UTILS ==================== */
+function updateScores() {
+  document.getElementById("p1-score").textContent = p1Score;
+  document.getElementById("ai-score").textContent = aiScore;
+}
+
+function updateTurnUI() {
+  document.getElementById("p1-card").classList.toggle("active-p1", currentPlayer === P1);
+  document.getElementById("ai-card").classList.toggle("active-ai", currentPlayer === AI);
+}
+
+function handleGameEnd(p1Res, aiRes) {
+  stopHockeyLoop();
+
+  const title = document.getElementById("winner-title");
+  const msg = document.getElementById("winner-msg");
+
+  if (p1Res > aiRes) {
+    title.textContent = `${p1Name} Won! 🎉`;
+    msg.textContent = `Victory added to your leaderboard stats!`;
+    if (myRole === P1 || gameMode === "computer") incrementPlayerWins();
+  } else if (aiRes > p1Res) {
+    title.textContent = `${p2Name} Won!`;
+    msg.textContent = `Better luck next time!`;
+    if (gameMode === "online" && myRole === AI) incrementPlayerWins();
+  } else {
+    title.textContent = "It's a Tie! 🤝";
+    msg.textContent = `Equal skills!`;
+  }
+
+  document.getElementById("game-over-modal").style.display = "flex";
+}
+
+async function togglePause() {
+  isPaused = !isPaused;
+  togglePauseUI(isPaused);
+
+  if (gameMode === "online" && currentGameDoc) {
+    try {
+      await databases.updateDocument(DATABASE_ID, COLLECTION_GAMES, currentGameDoc.$id, {
+        isPaused: isPaused
+      });
+    } catch(e) {}
+  }
+}
+
+function togglePauseUI(paused) {
+  const pauseIcon = document.getElementById("pause-icon");
+  const activeBoard = selectedGameType === "dots" ? document.getElementById("dots-board") : document.getElementById("hockey-wrapper");
+  pauseIcon.textContent = paused ? "▶" : "⏸";
+  activeBoard.style.opacity = paused ? "0.4" : "1";
+  activeBoard.style.pointerEvents = paused ? "none" : "auto";
+}
+
+function confirmRestart() {
+  showConfirmModal("Restart Game?", "Reset current game state?", () => {
+    if (gameMode === "online" && currentGameDoc) {
+      databases.updateDocument(DATABASE_ID, COLLECTION_GAMES, currentGameDoc.$id, {
+        isRestarted: true
+      });
+    } else {
+      initGame(true);
+    }
+  });
+}
+
+// Enable Enter Key on Login Input
+document.getElementById("user-id-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") login();
+});
+</script>
+</body>
+</html>
