@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080b18">
+<title>Gaming Suite 3D</title>
+<link rel="preconnect" href="https://fra.cloud.appwrite.io">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<!-- Appwrite SDK 14.0.1 -->
+<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+<!-- Tailwind CSS for Responsive Layouts -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- External Stylesheet -->
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app-wrapper">
+  
+  <div id="toast-container"></div>
+
+  <!-- 1. LOGIN PAGE -->
+  <div id="login-page" class="card">
+    <h2 class="text-2xl font-bold bg-gradient-to-r from-white to-blue-400 bg-clip-text text-transparent">Welcome Back</h2>
+    <p class="mb-3">Enter Player ID to play & sync ranking</p>
+    <input type="text" id="user-id-input" class="input-field" placeholder="Enter Player ID (e.g. Alex99)" spellcheck="false" maxlength="20" />
+    <button class="btn" onclick="login()">Enter Game</button>
+  </div>
+
+  <!-- 2. MAIN MENU -->
+  <div id="main-menu" class="card hidden">
+    <h2 id="welcome-text">Welcome</h2>
+    <button class="btn" onclick="showPage('select-game-page')">Play Game</button>
+    <button class="btn" onclick="showLeaderboard()">Leaderboard</button>
+    <button class="btn" onclick="showPage('settings-page')">Settings</button>
+    <button class="btn btn-back" onclick="logout()" style="margin-top:10px;">Logout</button>
+  </div>
+
+  <!-- 2.5 SELECT GAME PAGE -->
+  <div id="select-game-page" class="card hidden">
+    <h2>Select Game</h2>
+    <p class="mb-4">Choose game mode to play</p>
+    <button class="btn" onclick="chooseGame('dots')">Dots & Boxes 3D</button>
+    <button class="btn" onclick="chooseGame('hockey')" style="background:linear-gradient(135deg, #ff8da1, #ff3eaa); color:white;">Air Hockey 3D</button>
+    <button class="btn btn-back" onclick="showPage('main-menu')" style="margin-top:10px;">Back to Menu</button>
+  </div>
+
+  <!-- 3. GAME MODE SELECT -->
+  <div id="game-mode-page" class="card hidden">
+    <h2>Select Mode</h2>
+    <button class="btn" onclick="startComputerGame()">Play vs Computer</button>
+    <button class="btn" onclick="startOnlineSearch()" style="background:linear-gradient(135deg,#b77cff,#8032ff); color:white;">Play Online</button>
+    <button class="btn btn-back" onclick="showPage('select-game-page')" style="margin-top:10px;">Back to Select Game</button>
+  </div>
+
+  <!-- 4. ONLINE SEARCH MATCHMAKING -->
+  <div id="online-search-page" class="card hidden">
+    <h2>Searching Opponent</h2>
+    <div class="spinner"></div>
+    <p>Finding real-time player...</p>
+    <button class="btn btn-back" onclick="cancelOnlineSearch()" style="margin-top:16px;">Cancel Search</button>
+  </div>
+
+  <!-- 5. SETTINGS PAGE -->
+  <div id="settings-page" class="card hidden">
+    <h2>Settings</h2>
+    <div class="setting-item">
+      <span>Sound Effects</span>
+      <label class="switch">
+        <input type="checkbox" id="sound-toggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-item" style="flex-direction:column; align-items:flex-start; gap:8px;">
+      <span>Select Accent Color:</span>
+      <div class="color-options w-full">
+        <div class="color-btn selected" style="background:#3295ff" onclick="changeTheme('#3295ff','#080b18', this)"></div>
+        <div class="color-btn" style="background:#a6e3a1" onclick="changeTheme('#a6e3a1','#111b13', this)"></div>
+        <div class="color-btn" style="background:#f38ba8" onclick="changeTheme('#f38ba8','#1f1315', this)"></div>
+        <div class="color-btn" style="background:#fab387" onclick="changeTheme('#fab387','#241a15', this)"></div>
+        <div class="color-btn" style="background:#cba6f7" onclick="changeTheme('#cba6f7','#1b1324', this)"></div>
+      </div>
+    </div>
+    <button class="btn btn-back" onclick="showPage('main-menu')">Back to Menu</button>
+  </div>
+
+  <!-- 6. LEADERBOARD PAGE -->
+  <div id="leaderboard-page" class="card hidden">
+    <h2>🏆 Global Leaderboard</h2>
+    <p>Top players ranked by total victories</p>
+    
+    <div class="leaderboard-table-container">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player ID</th>
+            <th style="text-align:right;">Wins</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <tr><td colspan="3" style="text-align:center; padding:16px; color:var(--muted);">Loading ranking...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button class="btn btn-back" onclick="showPage('main-menu')">Back to Menu</button>
+  </div>
+
+  <!-- 7. GAME PAGE -->
+  <div id="game-page" class="game-container hidden">
+    <div class="game-toolbar">
+      <button class="icon-btn" id="pause-icon" title="Pause Game" onclick="togglePause()">⏸</button>
+      <button class="icon-btn" title="Restart Game" onclick="confirmRestart()">↻</button>
+      <button class="icon-btn" title="Settings" onclick="showPage('settings-page')">⚙</button>
+    </div>
+
+    <h1 id="game-title" class="mt-0 text-left">Dots & Boxes 3D</h1>
+
+    <div id="grid-selector-box" class="w-full flex items-center justify-between my-1 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+      <label for="grid-select" class="text-gray-300 font-semibold">Grid Size:</label>
+      <select id="grid-select" class="bg-slate-800 text-white rounded px-2 py-1 outline-none border border-white/20 text-xs cursor-pointer">
+        <option value="3">Small (3 × 3)</option>
+        <option value="4" selected>Medium (4 × 4)</option>
+        <option value="5">Large (5 × 5)</option>
+        <option value="6">X-Large (6 × 6)</option>
+        <option value="8">Pro (8 × 8)</option>
+      </select>
+    </div>
+
+    <div class="scoreboard">
+      <div id="p1-card" class="score-card active-p1">
+        <div class="player-name p1-text" id="player-display-name">You</div>
+        <div id="p1-score" class="score-val">0</div>
+      </div>
+      <div id="ai-card" class="score-card">
+        <div class="player-name ai-text" id="opponent-display-name">CPU</div>
+        <div id="ai-score" class="score-val">0</div>
+      </div>
+    </div>
+
+    <!-- Dots & Boxes Board Container -->
+    <div id="dots-board" class="board grid-4"></div>
+
+    <!-- Air Hockey Board Canvas Container -->
+    <div id="hockey-wrapper" class="hockey-wrapper hidden">
+      <canvas id="hockey-canvas" width="300" height="420"></canvas>
+    </div>
+
+    <!-- Mini Chat Room (Only visible in Online Mode) -->
+    <div id="chat-room" class="chat-container hidden">
+      <div class="chat-header">
+        <span>💬 Game Chat</span>
+        <span id="chat-status-text" class="text-[10px] text-green-400">Live</span>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-bubble them">
+          <span style="font-weight:bold; display:block; font-size:10px; opacity:0.85;">System</span>
+          <span>Welcome to the game! Chat with your opponent here.</span>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type message..." maxlength="80" />
+        <button class="chat-send-btn" onclick="sendChatMessage()">Send</button>
+      </div>
+    </div>
+
+    <div class="w-full mt-2">
+      <button class="btn btn-back" onclick="confirmLeaveGame()">Back to Menu</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- GAME OVER MODAL -->
+<div id="game-over-modal" class="modal">
+  <div class="modal-content">
+    <h2 id="winner-title" class="text-2xl font-bold mb-2">Game Over</h2>
+    <p id="winner-msg" class="mb-4 text-gray-300"></p>
+    <button class="btn" onclick="initGame(true)">Play Again</button>
+    <button class="btn btn-back" onclick="closeGameOverModal(); showPage('main-menu');">Main Menu</button>
+  </div>
+</div>
+
+<!-- CONFIRMATION MODAL -->
+<div id="confirm-modal" class="modal">
+  <div class="modal-content">
+    <h2 id="confirm-title" class="text-xl font-bold mb-2">Are you sure?</h2>
+    <p id="confirm-msg" class="mb-4 text-gray-300">Do you want to proceed?</p>
+    <div class="flex gap-2">
+      <button class="btn btn-back" onclick="closeConfirmModal(false)">Cancel</button>
+      <button class="btn" id="confirm-yes-btn">Yes</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
